@@ -2,16 +2,16 @@ import { Outlet } from "react-router-dom";
 import Navbar from "../MyComponent/Navbar"; // adjust path based on structure
 import Footer from "../MyComponent/Footer";
 
-export default function Layout() {
+export default function Home({ children }) {
   return (
-    <>
-      <div className="flex flex-col gap-2">
+    <div >
+      <div>
         <Navbar />
-
-        <Outlet />
-
+      </div>
+      <div >{children}</div>
+      <div>
         <Footer />
       </div>
-    </>
+    </div>
   );
 }

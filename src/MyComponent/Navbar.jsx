@@ -17,8 +17,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Dialog } from "@headlessui/react"; // Make sure this is installed
-import LoginForm from "./auth/LoginForm";
-import SignupForm from "./auth/SignupForm";
+
 
 
 export default function Navbar() {

@@ -1,11 +1,12 @@
 
-import AppRouting from './router/Route';
 
 
 
 
 // function App({ children }) {
 //   const [count, setCount] = useState(0)
+
+import AppRouting from "./routing/AppRoutes";
 
 //   return (
 //     <>
