@@ -22,7 +22,7 @@ exports.createUser = async (req, res) => {
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(409).json({ error: USER_CTR_MSG.EMAIL_ALREADY_EXISTS });
+      return res.status(409).json({status:false, error: USER_CTR_MSG.EMAIL_ALREADY_EXISTS });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -35,6 +35,9 @@ exports.createUser = async (req, res) => {
 
     const savedUser = await newUser.save();
     console.log("savedUser:", savedUser);
+
+
+    
 
     return res.status(201).json({
       status: true,

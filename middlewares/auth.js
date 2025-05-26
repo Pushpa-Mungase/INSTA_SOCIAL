@@ -55,42 +55,6 @@ exports.login = async (req, res) => {
   };
   
 
-// exports.verifyToken = (req,res,next) => {
-//   return async (req, res, next) => {
-//     try {
-//       const token = req.headers["authorization"];
-//       if (!token) {
-//         return res
-//           .status(400)
-//           .send({ status: false, message: "TOKEN_EXPIRED" });
-//       }
-
-//       const userToken = token.split(" ")[1];
-//       const decodeToken = jwt.verify(userToken, SECRET_KEY);
-
-//       if (!decodeToken) {
-//         return res
-//           .status(403)
-//           .send({ status: false, message: "YOUR_NOT_AUTHORIZE" });
-//       }
-//       req.user = decodeToken;
-//       next();
-//     } catch (error) {
-//       return res
-//         .status(500)
-//         .send({ status: false, message: "ERROR_VERIFING_TOKEN" });
-//     }
-//   };
-// };
-
-
-
-
-
-
-
-
-
 exports.verifyToken = async (req, res, next) => {
     try {
       const token = req.headers["authorization"];

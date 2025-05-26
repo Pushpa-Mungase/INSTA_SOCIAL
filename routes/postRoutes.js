@@ -4,7 +4,11 @@ const upload = require('../config/multerConfig');
 
 
 const {
-    createScheduledPost
+    createScheduledPost,
+    getAllScheduledPosts,
+    getScheduledPostById,
+    updateScheduledPost,
+    deleteScheduledPost
 
 }=require('../controller/scheduledPostController');
 
@@ -19,6 +23,11 @@ router.post(
   upload.array('media', 10), // 'media' should match the name in your form-data
   createScheduledPost
 );
+
+router.get('/get-scheduled-posts',verifyToken,getAllScheduledPosts);
+router.get('/get-scheduled-posts-byId' , verifyToken, getScheduledPostById);
+router.put('/update-scheduled-post/:postId' , verifyToken, upload.array('media', 10), updateScheduledPost);
+router.delete('/delete-scheduled-post/:postId' , verifyToken, deleteScheduledPost);
 
 
 module.exports=router;

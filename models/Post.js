@@ -1,64 +1,95 @@
-// import mongoose from "mongoose";
+// const mongoose = require("mongoose");
 
-// const postSchema = new mongoose.Schema(
-//   {
-//     postedBy: {
-//       type: mongoose.Schema.Types.ObjectId,
-//       ref: "User",
-//     },
-//     title: {
-//       type: String,
-//       required: true,
-//     },
-//     discription: {
-//       type: String,
-//     },
-//     images: [
-//       {
-//         type: String,
-//       },
-//     ],
-//     video: [
-//       {
-//         type: String,
-//       },
-//     ],
-//     scheduledDateTime: {
-//       type: Date,
-//     },
-//     platform: [
-//       {
-//         type: String,
-//         required: true,
-//       },
-//     ],
+// const scheduledPostSchema = new mongoose.Schema({
+//   createdBy: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: "User",
+//     required: true,
 //   },
-//   { timestamps: true }
-// );
+//   content: { type: String, required: true },
+//   platforms: [
+//     { type: String, enum: ["twitter", "facebook", "instagram", "linkedin"] },
+//   ],
+//   imageUrls: [{ type: String }],
+//   videoUrls: [{ type: String }],
+//   scheduledFor: { type: Date, required: true },
+//   status: {
+//     type: String,
+//     enum: ["pending", "posted", "failed"],
+//     default: "pending",
+//   },
+//   isPosted: { type: Boolean, default: false },
+//   createdAt: { type: Date, default: Date.now },
+// });
 
-// export const Post=mongoose.model("Post",postSchema);
+// module.exports = mongoose.model("ScheduledPost", scheduledPostSchema);
 
-
-
-
-
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const scheduledPostSchema = new mongoose.Schema({
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  content: { type: String, required: true },
-  platforms: [{ type: String, enum: ['twitter', 'facebook', 'instagram', 'linkedin'] }],
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+
+  title: {
+    type: String,
+  },
+
+  content: {
+    type: String,
+    required: true,
+  },
+
+  // platforms: [
+  //   {
+  //     platformId: {
+  //       type: mongoose.Schema.Types.ObjectId,
+  //       required: true,
+  //     },
+  //     platformName: {
+  //       type: String,
+  //       enum: ["facebook", "twitter", "instagram", "linkedin"],
+  //       required: true,
+  //     },
+  //     isPosted: {
+  //       type: Boolean,
+  //       default: false,
+  //     },
+  //     postResponse: {
+  //       type: String, // optional: response or error from Pabbly
+  //     },
+  //   },
+  // ],
+
+  platforms: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Platform.platforms", // nested schema reference (manual population)
+      required:true
+    },
+  ],
+
   imageUrls: [{ type: String }],
-  videoUrl: { type: String },
-  scheduledFor: { type: Date, required: true },
+  videoUrls: [{ type: String }],
+  audioUrls: [{ type: String }], // optional if you support audio
+
+  scheduledFor: {
+    type: Date,
+    required: true,
+  },
+
   status: {
     type: String,
-    enum: ['pending', 'posted', 'failed'],
-    default: 'pending'
+    enum: ["pending", "posted", "failed"],
+    default: "pending",
   },
-isPosted: { type: Boolean, default: false }, 
-  createdAt: { type: Date, default: Date.now }
+
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
-module.exports = mongoose.model('ScheduledPost', scheduledPostSchema);
-
+module.exports = mongoose.model("ScheduledPost", scheduledPostSchema);
