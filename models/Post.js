@@ -42,6 +42,12 @@ const scheduledPostSchema = new mongoose.Schema({
     required: true,
   },
 
+   isPosted:{
+         type:Boolean,
+         default:false,
+         required:true
+      },
+
   // platforms: [
   //   {
   //     platformId: {
@@ -91,5 +97,13 @@ const scheduledPostSchema = new mongoose.Schema({
     default: Date.now,
   },
 });
+
+scheduledPostSchema.pre("save",function(next){
+
+  this.createdAt=new Date(new Date().getTime() + 5.5*60*60*1000)
+ next()
+
+
+})
 
 module.exports = mongoose.model("ScheduledPost", scheduledPostSchema);

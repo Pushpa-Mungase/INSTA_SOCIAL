@@ -5,6 +5,9 @@ const loginRoutes=require("./routes/loginRoutes");
 const postRoutes=require("./routes/postRoutes");
 const platformRoutes=require("./routes/platformRoutes.js");
 const webhookRoutes = require('./routes/webhookRoutes.js');
+const testRoutes = require("./routes/testRoutes");
+
+
 const path = require("path");
 require("dotenv").config();
 const app = express();
@@ -36,13 +39,19 @@ connectDB();
 app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
-
+app.get("/test",(req,res)=>{
+    res.status(200).send({
+        status : true,
+        msg: "ngrok tested!"
+    })
+})
 app.use("/api/v1/user",userRoutes);
 app.use("/api/v1/auth",loginRoutes);
 app.use("/api/v1/post",postRoutes);
 app.use("/api/v1/platform",platformRoutes);
 
 app.use('/api/v1/webhook', webhookRoutes);
+app.use("/api/test/v1", testRoutes);
 
 
 

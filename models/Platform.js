@@ -21,7 +21,13 @@ const platformSchema = new mongoose.Schema(
          isValid: {
         type: Boolean,
         default: false
-      }
+      },
+      isPosted:{
+         type:Boolean,
+         default:false,
+        
+      },
+    postedId: { type: [String], default: [] },
       },
     ],
      

@@ -1,5 +1,6 @@
 const ScheduledPost = require("../models/Post");
 const Platform = require("../models/Platform");
+const moment=require("moment-timezone");
 
 const mongoose = require('mongoose');
 
@@ -400,13 +401,15 @@ if (invalidIds.length > 0) {
   selectedPlatformIds.includes(p._id.toString())
 );
 
+const istTime = req.body.scheduledFor; // e.g. "27-05-2025 16:30"
+const utcTime = moment.tz(istTime, "DD-MM-YYYY HH:mm", "Asia/Kolkata").utc().toDate();
 
     // Create and save the scheduled post
     const newPost = new ScheduledPost({
       createdBy: userId,
       content,
       platforms: selectedPlatformIds,
-      scheduledFor,
+      scheduledFor:utcTime,
       imageUrls,
       videoUrls,
       audioUrls,
@@ -416,27 +419,27 @@ if (invalidIds.length > 0) {
 
 // Now save and send only valid selected platforms
 
-    // Send each platform's data to Pabbly
-    for (const platform of selectedPlatformsDetails) {
-      await sendToPabblyPost({
-        postId: newPost._id,
-        content,
-        scheduledFor,
-        platform: {
-          name: platform.platformName,
-          platformId: platform._id,
-        },
-        media: {
-          images: imageUrls,
-          videos: videoUrls,
-          audios: audioUrls,
-        },
-        createdBy: userId,
-      });
-    }
+    // // Send each platform's data to Pabbly
+    // for (const platform of selectedPlatformsDetails) {
+    //   await sendToPabblyPost({
+    //     postId: newPost._id,
+    //     content,
+    //     scheduledFor,
+    //     platform: {
+    //       name: platform.platformName,
+    //       platformId: platform._id,
+    //     },
+    //     media: {
+    //       images: imageUrls,
+    //       videos: videoUrls,
+    //       audios: audioUrls,
+    //     },
+    //     createdBy: userId,
+    //   });
+    // }
 
     return res.status(201).json({
-      message: "Scheduled post created and sent to Pabbly",
+      message: "Scheduled post created and store in cron",
       post: newPost,
     });
 
@@ -686,44 +689,61 @@ const getScheduledPostById = async (req, res) => {
 
 const updateScheduledPost = async (req, res) => {
   try {
-    if (!req.user || !(req.user._id || req.user.id)) {
+    const userId = req.user?._id || req.user?.id;
+    if (!userId) {
       return res.status(401).json({ error: "User not authenticated" });
     }
 
-    const postId = req.params.id;
-    const { content, scheduledFor, platforms } = req.body;
+    const postId = req.params.postId;
+    console.log("req params",req.params);
+    
+    console.log("postId",postId);
+    
+    const { content, scheduledFor, selectedPlatformIds } = req.body;
 
-    const files = req.files || [];
-    const imageUrls = [];
-    const videoUrls = [];
-    const audioUrls = [];
+    if (!Array.isArray(selectedPlatformIds) || selectedPlatformIds.length === 0) {
+      return res.status(400).json({ error: "selectedPlatformIds must be a non-empty array" });
+    }
+
+    const platformDoc = await Platform.findOne({ user: userId });
+    const allPlatforms = platformDoc?.platforms || [];
+
+    const validPlatforms = allPlatforms.filter(p => p.isValid);
+    if (validPlatforms.length === 0) {
+      return res.status(400).json({ error: "No valid platforms found for user" });
+    }
+
+    const validPlatformIds = validPlatforms.map(p => p._id.toString());
+    const invalidIds = selectedPlatformIds.filter(id => !validPlatformIds.includes(id));
+    if (invalidIds.length > 0) {
+      return res.status(400).json({ error: "Invalid or unverified platform IDs selected" });
+    }
+
+    const files = Array.isArray(req.files) ? req.files : Object.values(req.files || {});
+    const imageUrls = [], videoUrls = [], audioUrls = [];
 
     for (const file of files) {
       if (!file?.buffer) continue;
-
       const fileName = path.parse(file.originalname).name;
       const publicId = `${Date.now()}-${fileName}`;
       const folder = "LMS/scheduledPosts";
-
       const result = await uploadOnCloudinary(file.buffer, publicId, folder);
 
       if (!result?.secure_url) continue;
-
-      if (file.mimetype.startsWith("image/")) {
-        imageUrls.push(result.secure_url);
-      } else if (file.mimetype.startsWith("video/")) {
-        videoUrls.push(result.secure_url);
-      } else if (file.mimetype.startsWith("audio/")) {
-        audioUrls.push(result.secure_url);
-      }
+      if (file.mimetype.startsWith("image/")) imageUrls.push(result.secure_url);
+      else if (file.mimetype.startsWith("video/")) videoUrls.push(result.secure_url);
+      else if (file.mimetype.startsWith("audio/")) audioUrls.push(result.secure_url);
     }
 
-    // Update post in DB
+    const selectedPlatformsDetails = validPlatforms.filter(p =>
+      selectedPlatformIds.includes(p._id.toString())
+    );
+
     const updatedPost = await ScheduledPost.findByIdAndUpdate(
       postId,
       {
         content,
-        platforms,
+        platforms: selectedPlatformIds,
         scheduledFor,
         ...(imageUrls.length && { imageUrls }),
         ...(videoUrls.length && { videoUrls }),
@@ -736,10 +756,7 @@ const updateScheduledPost = async (req, res) => {
       return res.status(404).json({ error: "Scheduled post not found" });
     }
 
-    const userId = req.user._id || req.user.id;
-
-    // Send updated post data to Pabbly
-    for (const p of platforms || []) {
+    for (const p of selectedPlatformsDetails) {
       const platformId = p._id || p.platformId || "";
 
       await sendToPabblyPost({
@@ -748,7 +765,7 @@ const updateScheduledPost = async (req, res) => {
         scheduledFor,
         platform: {
           name: p.platformName,
-          platformId: platformId,
+          platformId,
         },
         media: {
           images: updatedPost.imageUrls || [],
@@ -772,6 +789,7 @@ const updateScheduledPost = async (req, res) => {
     });
   }
 };
+
 
 
 const deleteScheduledPost = async (req, res) => {

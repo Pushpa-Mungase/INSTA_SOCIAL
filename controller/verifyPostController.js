@@ -11,7 +11,9 @@ exports.verifyScheduledPost = async (req, res) => {
       return res.status(400).json({ message: "Post ID is required" });
     }
 
-    const post = await ScheduledPost.findOne({ _id: postId, createdBy: userId });
+    // Populate platformId to get platform details (credentials)
+    const post = await ScheduledPost.findOne({ _id: postId, createdBy: userId }).populate("platforms.platformId");
+
     if (!post) {
       return res.status(404).json({ message: "Scheduled post not found" });
     }
@@ -22,22 +24,25 @@ exports.verifyScheduledPost = async (req, res) => {
       return res.status(400).json({ message: "No platforms found for this post" });
     }
 
-    for (const platform of platforms) {
+    for (const platformInfo of platforms) {
+      const platformDetails = platformInfo.platformId.platformDetails;  // populated credentials
+
       await sendToPabblyPost({
         postId,
         content,
         scheduledFor,
         platform: {
-          name: platform.platformName,
-          platformId: platform.platformId,
+          name: platformInfo.platformId.platformName,
+          platformId: platformInfo.platformId._id.toString(),
         },
+        credentials: platformDetails, // pass credentials here for verification
         media: {
           images: imageUrls || [],
           videos: videoUrls || [],
           audios: audioUrls || [],
         },
         createdBy: userId,
-        isVerification: true, // Optional flag for webhook to handle verification mode
+        isVerification: true,
       });
     }
 

@@ -16,7 +16,7 @@ async function sendToPabblyPost(data) {
         videos: data.media.videos || [],
         audios: data.media.audios || [],
       },
-      callbackUrl: "http://127.0.0.1:8000/api/v1/api/webhook/pabbly/post-status",
+      callbackUrl: "https://1aee-182-156-141-110.ngrok-free.app/api/v1/webhook/post/verify",
     };
 
     await axios.post(

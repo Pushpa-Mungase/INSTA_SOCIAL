@@ -1,7 +1,5 @@
 const Platform = require("../models/Platform");
 
-
-
 const ScheduledPost = require("../models/Post");
 
 exports.handlePabblyVerification = async (req, res) => {
@@ -17,7 +15,7 @@ exports.handlePabblyVerification = async (req, res) => {
       return res.status(404).json({ error: "User's platform not found" });
     }
 
-    const updatedPlatforms = platform.platforms.map(p => {
+    const updatedPlatforms = platform.platforms.map((p) => {
       if (p._id.toString() === platformId) {
         return { ...p._doc, isValid };
       }
@@ -34,18 +32,15 @@ exports.handlePabblyVerification = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
 exports.handlePostVerification = async (req, res) => {
   try {
-    const { postId, platformId, isValid } = req.body;
+    const { postId, platformId, isPosted, postedId } = req.body;
+
+    console.log("req.body", req.body);
+    console.log("Incoming Data:", { postId, platformId, isPosted, postedId });
 
     if (!postId || !platformId) {
-      return res.status(400).json({ error: "Missing identifiers" });
+      return res.status(400).json({ error: "Missing postId or platformId" });
     }
 
     const post = await ScheduledPost.findById(postId);
@@ -53,20 +48,50 @@ exports.handlePostVerification = async (req, res) => {
       return res.status(404).json({ error: "Scheduled post not found" });
     }
 
-    const updatedPlatforms = post.platforms.map(p => {
-      // platformId may be string, so ensure comparison works
-      if (p._id.toString() === platformId) {
-        return { ...p._doc, isValid };
-      }
-      return p;
-    });
+    if (typeof isPosted === "boolean") {
+      post.isPosted = isPosted;
+      await post.save();
+    }
 
-    post.platforms = updatedPlatforms;
-    await post.save();
+    const platformDoc = await Platform.findOne({ "platforms._id": platformId });
 
-    res.status(200).json({ message: "Post verification status updated" });
+    if (!platformDoc) {
+      return res.status(404).json({ error: "Platform document not found" });
+    }
+
+    const platformEntry = platformDoc.platforms.find(
+      (p) => p._id.toString() === platformId
+    );
+
+    if (!platformEntry) {
+      return res.status(404).json({ error: "Platform entry not found" });
+    }
+
+    // Update isPosted flag
+    if (typeof isPosted === "boolean") {
+      platformEntry.isPosted = isPosted;
+    }
+
+    // Ensure postedId array is initialized
+    if (!Array.isArray(platformEntry.postedId)) {
+      platformEntry.postedId = [];
+    }
+
+    // Safely add postedId if not duplicate
+    if (postedId && !platformEntry.postedId.includes(postedId)) {
+      platformEntry.postedId = [...platformEntry.postedId, postedId]; // assign new array to trigger change
+    }
+
+    // Mark nested array as modified
+    platformDoc.markModified("platforms");
+    await platformDoc.save();
+
+    console.log("posted successfully!!");
+    return res
+      .status(200)
+      .json({ message: "Post and platform status updated successfully" });
   } catch (err) {
     console.error("Webhook error:", err);
-    res.status(500).json({ error: "Server error" });
+    return res.status(500).json({ error: "Server error" });
   }
 };
