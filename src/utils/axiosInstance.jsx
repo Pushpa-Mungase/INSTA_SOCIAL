@@ -37,7 +37,7 @@ axiosInstance.interceptors.request.use(
       delete config.headers["Authorization"];
     }
     return config;
-  },
+  }, 
   (error) => {
     return Promise.reject(error);
   }

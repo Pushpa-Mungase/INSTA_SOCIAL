@@ -1,37 +1,7 @@
-
-
-
-
-
-// function App({ children }) {
-//   const [count, setCount] = useState(0)
-
 import AppRouting from "./routing/AppRoutes";
 
-//   return (
-//     <>
-//      <button onClick={() => setCount((count) => count + 1)}>
-//           count is {count}
-//         </button> 
-       
-
-      
-//     </>
-//   )
-// }
-
-
-
 function App() {
-  return (
-    <AppRouting/>
-  );
+  return <AppRouting />;
 }
 
-
-
-
 export default App;
-
-
-

@@ -1,19 +1,4 @@
-// import { Link } from 'react-router-dom';
 
-// export default function Navbar() {
-//   return (
-//     <nav className="flex items-center justify-between bg-gray-800 text-white p-4 shadow">
-//       <div className="text-xl font-bold">MyLogo</div>
-//       <div>
-//         <Link to="/" className="hover:text-gray-300">Home</Link>
-//       </div>
-//     </nav>
-//   );
-// }
-
-
-
-// src/components/Navbar.jsx
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Dialog } from "@headlessui/react"; // Make sure this is installed
@@ -39,18 +24,7 @@ export default function Navbar() {
         <div className="text-xl font-bold">MyLogo</div>
         <div className="flex gap-4 items-center">
           <Link to="/" className="hover:text-gray-300">Home</Link>
-          {/* <button
-            onClick={() => openModal("login")}
-            className="!hover:text-black-300"
-          >
-            Login
-          </button>
-          <button
-            onClick={() => openModal("signup")}
-            className="!hover:text--300-black"
-          >
-            Sign Up
-          </button> */}
+         
         </div>
       </nav>
 
@@ -65,7 +39,7 @@ export default function Navbar() {
             >
               &times;
             </button>
-            {/* {authType === "login" ? <LoginForm /> : <SignupForm />} */}
+           
           </Dialog.Panel>
         </div>
       </Dialog>

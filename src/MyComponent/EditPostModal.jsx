@@ -1,140 +1,5 @@
-// import { useState, useEffect } from "react";
-// import apiUrls from "../utils/apiUrls";
-// import axiosInstance from "../utils/axiosInstance";
-
-// import {
-//   Dialog,
-//   DialogContent,
-//   DialogDescription,
-//   DialogFooter,
-//   DialogHeader,
-//   DialogTitle,
-// } from "@/components/ui/dialog";
-
-// const platformsList = ["facebook", "twitter", "linkedin", "instagram"];
-
-// export default function EditPostModal({ postId,isOpen, setIsOpen, post, onUpdated }) {
-//   const [updatedPost, setUpdatedPost] = useState({
-//     title: "",
-//     description: "",
-//     platforms: [],
-//     scheduledFor: "",
-//   });
-
-//   useEffect(() => {
-//     if (post) {
-//       setUpdatedPost({
-//         title: post.title || "",
-//         description: post.description || post.content || "",
-//         platforms: post.platforms || [],
-//         scheduledFor: post.scheduledFor
-//           ? new Date(post.scheduledFor).toISOString().slice(0, 16) // for datetime-local
-//           : "",
-//       });
-//     }
-//   }, [post]);
-
-//   const handlePlatformToggle = (platform) => {
-//     setUpdatedPost((prev) => {
-//       const platforms = prev.platforms.includes(platform)
-//         ? prev.platforms.filter((p) => p !== platform)
-//         : [...prev.platforms, platform];
-//       return { ...prev, platforms };
-//     });
-//   };
-
-//   const handleUpdatePost = async () => {
-//     try {
-//       const payload = {
-//         title: updatedPost.title,
-//         content: updatedPost.description,
-//         platforms: updatedPost.platforms,
-//         scheduledFor: updatedPost.scheduledFor,
-//       };
-
-//        await axios.put(`/update-scheduled-post/${postId}`, { content: 'new content' });
-//   onUpdated(); // refresh posts list
-//   setIsOpen(false); // close modal
-//     } catch (error) {
-//       console.error("Error updating post:", error);
-//     }
-//   };
-
-//   return (
-//     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-//       <DialogContent>
-//         <DialogHeader>
-//           <DialogTitle>Edit Post</DialogTitle>
-//           <DialogDescription>Modify and save your post details.</DialogDescription>
-//         </DialogHeader>
-
-//         <div className="space-y-4">
-//           <input
-//             type="text"
-//             placeholder="Post Title"
-//             value={updatedPost.title}
-//             onChange={(e) =>
-//               setUpdatedPost((prev) => ({ ...prev, title: e.target.value }))
-//             }
-//             className="w-full border p-2 rounded"
-//           />
-
-//           <textarea
-//             placeholder="Post Description"
-//             value={updatedPost.description}
-//             onChange={(e) =>
-//               setUpdatedPost((prev) => ({ ...prev, description: e.target.value }))
-//             }
-//             className="w-full border p-2 rounded"
-//           />
-
-//           <div className="flex gap-2 flex-wrap">
-//             {platformsList.map((platform) => (
-//               <button
-//                 key={platform}
-//                 type="button"
-//                 onClick={() => handlePlatformToggle(platform)}
-//                 className={`px-3 py-1 border rounded-full ${
-//                   updatedPost.platforms.includes(platform)
-//                     ? "bg-blue-600 text-white"
-//                     : "bg-gray-100"
-//                 }`}
-//               >
-//                 {platform}
-//               </button>
-//             ))}
-//           </div>
-
-//           <input
-//             type="datetime-local"
-//             value={updatedPost.scheduledFor}
-//             onChange={(e) =>
-//               setUpdatedPost((prev) => ({
-//                 ...prev,
-//                 scheduledFor: e.target.value,
-//               }))
-//             }
-//             className="w-full border p-2 rounded"
-//           />
-//         </div>
-
-//         <DialogFooter>
-//           <button
-//             className="bg-blue-600 text-white px-4 py-2 rounded mt-4"
-//             onClick={handleUpdatePost}
-//           >
-//             Save Changes
-//           </button>
-//         </DialogFooter>
-//       </DialogContent>
-//     </Dialog>
-//   );
-// }
-
 import { useState, useEffect } from "react";
-import apiUrls from "../utils/apiUrls";
 import axiosInstance from "../utils/axiosInstance";
-
 import {
   Dialog,
   DialogContent,
@@ -155,20 +20,26 @@ export default function EditPostModal({
 }) {
   const [updatedPost, setUpdatedPost] = useState({
     title: "",
-    description: "",
+    content: "",
     platforms: [],
     scheduledFor: "",
+    existingMedia: [],
+    newImageFiles: [],
+    newVideoFiles: [],
   });
 
   useEffect(() => {
     if (post) {
       setUpdatedPost({
         title: post.title || "",
-        description: post.description || post.content || "",
+        content: post.content || post.description || "",
         platforms: post.platforms || [],
         scheduledFor: post.scheduledFor
-          ? new Date(post.scheduledFor).toISOString().slice(0, 16) // for datetime-local
+          ? new Date(post.scheduledFor).toISOString().slice(0, 16)
           : "",
+        existingMedia: post.media || [],
+        newImageFiles: [],
+        newVideoFiles: [],
       });
     }
   }, [post]);
@@ -182,63 +53,53 @@ export default function EditPostModal({
     });
   };
 
-//   const handleUpdatePost = async () => {
-//     try {
-//       // Correct the axios call to send the proper payload
-//       const response=await axiosInstance.put(
-//         `/post/update-scheduled-post/${postId}`,
-//         updatedPost
-//       );
+  const handleFileChange = (e, type) => {
+    const files = Array.from(e.target.files);
+    setUpdatedPost((prev) => ({ ...prev, [type]: files }));
+  };
 
-//       // Refresh the posts list and close the modal
-//       onUpdated();
-//       setIsOpen(false);
+  const handleUpdatePost = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("title", updatedPost.title);
+      formData.append("content", updatedPost.content);
+      formData.append("scheduledFor", updatedPost.scheduledFor);
+      updatedPost.platforms.forEach((p) => formData.append("platforms[]", p));
 
-//        if (response.data?.message === "Post updated successfully") {
-//       // Display a success message or alert
-//       alert("Post updated successfully!");
-//     } 
-// }catch (error) {
-//       console.error("Error updating post:", error);
-//     }
-//   };
+      updatedPost.newImageFiles.forEach((file) =>
+        formData.append("media", file)
+      );
+      updatedPost.newVideoFiles.forEach((file) =>
+        formData.append("media", file)
+      );
 
+      const response = await axiosInstance.put(
+        `/post/update-scheduled-post/${postId}`,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
 
-
-
-
-const handleUpdatePost = async () => {
-  try {
-    const payload = {
-      title: updatedPost.title,
-      content: updatedPost.description, // ✅ convert 'description' to 'content'
-      platforms: updatedPost.platforms,
-      scheduledFor: updatedPost.scheduledFor,
-    };
-
-    const response = await axiosInstance.put(
-      `/post/update-scheduled-post/${postId}`,
-      payload
-    );
-
-    if (response.data?.message === "Post updated successfully") {
-      alert("Post updated successfully!");
+      if (response.data?.message === "Post updated successfully") {
+        alert("Post updated successfully!");
+        onUpdated();
+        setIsOpen(false);
+      }
+    } catch (error) {
+      console.error(
+        "Error updating post:",
+        error.response?.data || error.message
+      );
+      alert("Failed to update post.");
     }
-
-    onUpdated();
-    setIsOpen(false);
-  } catch (error) {
-    console.error("Error updating post:", error.response?.data || error.message);
-  }
-};
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent>
+      <DialogContent className="max-w-lg rounded-2xl">
         <DialogHeader>
-          <DialogTitle>Edit Post</DialogTitle>
+          <DialogTitle>Edit Scheduled Post</DialogTitle>
           <DialogDescription>
-            Modify and save your post details.
+            Modify the post, change media, and save your updates.
           </DialogDescription>
         </DialogHeader>
 
@@ -254,32 +115,32 @@ const handleUpdatePost = async () => {
           />
 
           <textarea
-            placeholder="Post Description"
-            value={updatedPost.description}
+            placeholder="Post Content"
+            value={updatedPost.content}
             onChange={(e) =>
-              setUpdatedPost((prev) => ({
-                ...prev,
-                description: e.target.value,
-              }))
+              setUpdatedPost((prev) => ({ ...prev, content: e.target.value }))
             }
             className="w-full border p-2 rounded"
+            rows={4}
           />
 
-          <div className="flex gap-2 flex-wrap">
-            {platformsList.map((platform) => (
-              <button
-                key={platform}
-                type="button"
-                onClick={() => handlePlatformToggle(platform)}
-                className={`px-3 py-1 border rounded-full ${
-                  updatedPost.platforms.includes(platform)
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100"
-                }`}
-              >
-                {platform}
-              </button>
-            ))}
+          <div>
+            <p className="font-medium mb-2">Select Platforms:</p>
+            <div className="flex gap-2 flex-wrap">
+              {platformsList.map((platform) => (
+                <button
+                  key={platform}
+                  onClick={() => handlePlatformToggle(platform)}
+                  className={`px-4 py-2 rounded-full border transition ${
+                    updatedPost.platforms.includes(platform)
+                      ? "bg-blue-600 text-white border-blue-600"
+                      : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+                  }`}
+                >
+                  {platform.charAt(0).toUpperCase() + platform.slice(1)}
+                </button>
+              ))}
+            </div>
           </div>
 
           <input
@@ -293,6 +154,55 @@ const handleUpdatePost = async () => {
             }
             className="w-full border p-2 rounded"
           />
+
+          {/* Show existing media (optional thumbnails) */}
+          {updatedPost.existingMedia?.length > 0 && (
+            <div>
+              <p className="font-medium mb-1">Existing Media</p>
+              <div className="grid grid-cols-2 gap-3">
+                {updatedPost.existingMedia.map((url, index) => (
+                  <div key={index} className="border rounded overflow-hidden">
+                    {url.match(/\.(jpeg|jpg|png|gif)$/i) ? (
+                      <img
+                        src={url}
+                        alt="Media"
+                        className="w-full h-24 object-cover"
+                      />
+                    ) : (
+                      <video
+                        src={url}
+                        controls
+                        className="w-full h-24 object-cover"
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Upload new media */}
+          <div>
+            <label className="block font-medium mb-1">Add New Images</label>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={(e) => handleFileChange(e, "newImageFiles")}
+              className="block w-full text-sm file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+            />
+          </div>
+
+          <div>
+            <label className="block font-medium mb-1">Add New Videos</label>
+            <input
+              type="file"
+              accept="video/*"
+              multiple
+              onChange={(e) => handleFileChange(e, "newVideoFiles")}
+              className="block w-full text-sm file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+            />
+          </div>
         </div>
 
         <DialogFooter>
@@ -307,3 +217,13 @@ const handleUpdatePost = async () => {
     </Dialog>
   );
 }
+
+
+
+
+
+
+
+
+
+
