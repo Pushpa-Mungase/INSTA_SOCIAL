@@ -1,3 +1,5 @@
+
+
 import { useEffect, useState } from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import EditPostModal from "./EditPostModal";
@@ -9,24 +11,18 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-
 import Lightbox from "yet-another-react-lightbox";
 import Video from "yet-another-react-lightbox/plugins/video";
 import "yet-another-react-lightbox/styles.css";
 
 export default function GetPostModal({ onEdit, postsData }) {
   const [posts, setPosts] = useState([]);
-  const [activeMenu, setActiveMenu] = useState(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [selectedPost, setSelectedPost] = useState(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedPost, setSelectedPost] = useState(null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [lightboxSlides, setLightboxSlides] = useState([]);
-
-  const toggleMenu = (id) => {
-    setActiveMenu(activeMenu === id ? null : id);
-  };
 
   const fetchPosts = async () => {
     try {
@@ -49,28 +45,20 @@ export default function GetPostModal({ onEdit, postsData }) {
       });
 
       setPosts(normalizedPosts);
-      console.log("Posts fetched successfully:", normalizedPosts);
     } catch (error) {
       console.error("Error fetching posts:", error);
     }
   };
 
-  // Open lightbox at clicked media (image or video)
   const openLightboxAt = (post, clickedIndex) => {
-    const slides = post.files
-      .map((file) => {
-        if (file.type === "image") {
-          return { src: file.url };
-        } else if (file.type === "video") {
-          return {
+    const slides = post.files.map((file) =>
+      file.type === "image"
+        ? { src: file.url }
+        : {
             type: "video",
             sources: [{ src: file.url, type: "video/mp4" }],
-          };
-        }
-
-        return null;
-      })
-      .filter(Boolean);
+          }
+    );
 
     setLightboxSlides(slides);
     setCurrentIndex(clickedIndex);
@@ -86,10 +74,19 @@ export default function GetPostModal({ onEdit, postsData }) {
     setSelectedPost(post);
     setDeleteModalOpen(true);
   };
+  const handleRetry = (post) => {
+    // Open the update post form (reuse edit logic)
+    handleEdit({
+      ...post,
+      status: "scheduled", // Change the status right away for UI or do it on save
+    });
+  };
 
   useEffect(() => {
     fetchPosts();
   }, [postsData]);
+
+  console.log(posts.filter(p => p.status === "pending" && p.isPosted));
 
   return (
     <div className="p-6">
@@ -99,79 +96,64 @@ export default function GetPostModal({ onEdit, postsData }) {
             key={post._id}
             className="relative bg-white border shadow rounded-lg p-4"
           >
-{/* 
-            {post.status === "pending" && (
-  <div className="absolute top-2 left-2 bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-1 rounded">
-    Scheduled
-  </div>
-)}
-{post.isPosted && (
-  <div className="absolute top-2 left-2 bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded">
-    Posted
-  </div>
-)} */}
+            {/* Status Badge */}
+            {post.isPosted ? (
+              <div className="absolute top-2 left-2 bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded">
+                Posted
+              </div>
+            ) : post.status === "pending"  ? (
+              <div className="absolute top-2 left-2 bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-1 rounded">
+                Scheduled
+              </div>
+            ) : post.status === "failed" ? (
+              <div className="absolute top-2 left-2 bg-red-100 text-red-800 text-xs font-semibold px-2 py-1 rounded">
+                Failed
+              </div>
+            ) : null}
 
-
-
-{post.isPosted ? (
-  <div className="absolute top-2 left-2 bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded">
-    Posted
-  </div>
-) : post.status === "pending" ? (
-  <div className="absolute top-2 left-2 bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-1 rounded">
-    Scheduled
-  </div>
-) : null}
-            {/* Edit/Delete Menu */}
+            {/* Options Menu */}
             <Popover>
-              <PopoverTrigger> <BsThreeDotsVertical size={20} /></PopoverTrigger>
-              {/* <PopoverContent className="w-32 p-2 space-y-2">
-                 
+              <PopoverTrigger>
+                <BsThreeDotsVertical size={20} />
+              </PopoverTrigger>
+              
+              <PopoverContent className="w-32 p-2 space-y-2">
+                {/* Show Edit when not posted and status is not failed */}
+                {!post.isPosted && post.status === "pending" && (
                   <button
                     onClick={() => handleEdit(post)}
                     className="block w-full text-left px-4 py-2 hover:bg-gray-100"
                   >
                     Edit
                   </button>
+                )}
+
+                {/* Show Retry only when failed */}
+                {!post.isPosted && post.status == "failed" && (
                   <button
-                    onClick={() => handleDelete(post)}
-                    className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600"
+                    onClick={() => handleRetry(post)} // This should change status to "scheduled"
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-yellow-700 font-semibold"
                   >
-                    Delete
+                    Retry
                   </button>
-              
-              </PopoverContent> */}
+                )}
 
-              <PopoverContent className="w-32 p-2 space-y-2">
-  {!post.isPosted && (
-    <button
-      onClick={() => handleEdit(post)}
-      className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-    >
-      Edit
-    </button>
-  )}
-  <button
-    onClick={() => handleDelete(post)}
-    className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600"
-  >
-    Delete
-  </button>
-</PopoverContent>
+                {/* Always show Delete */}
+                
+                <button
+                  onClick={() => handleDelete(post)}
+                  className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600"
+                >
+                  Delete
+                </button>
+              </PopoverContent>
             </Popover>
-
-            {/* <div className="absolute top-2 right-2">
-              <button onClick={() => toggleMenu(post._id)}>
-                <BsThreeDotsVertical size={20} />
-              </button>
-            
-            </div> */}
 
             {/* Post Content */}
             <p className="text-gray-800 text-sm mb-2">{post.content}</p>
 
-            {/* Media Preview Grid */}
-            {post.files && post.files.length > 0 && (
+            {/* Media Grid */}
+            {post.files?.length > 0 && (
               <div
                 className={`grid gap-1 mt-2 rounded overflow-hidden ${
                   post.files.length === 1
@@ -203,7 +185,6 @@ export default function GetPostModal({ onEdit, postsData }) {
                       />
                     )}
 
-                    {/* Overlay for 4+ items */}
                     {index === 3 && post.files.length > 4 && (
                       <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center text-white text-xl font-bold">
                         +{post.files.length - 4}
@@ -225,7 +206,6 @@ export default function GetPostModal({ onEdit, postsData }) {
         onUpdated={fetchPosts}
         postId={selectedPost?._id}
       />
-
       <DeletePostModal
         isOpen={deleteModalOpen}
         setIsOpen={setDeleteModalOpen}
@@ -233,7 +213,7 @@ export default function GetPostModal({ onEdit, postsData }) {
         onDeleted={fetchPosts}
       />
 
-      {/* Lightbox with Video Plugin */}
+      {/* Lightbox Viewer */}
       <Lightbox
         open={lightboxOpen}
         close={() => setLightboxOpen(false)}

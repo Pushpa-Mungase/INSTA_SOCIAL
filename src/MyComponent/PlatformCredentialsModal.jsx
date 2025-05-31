@@ -55,7 +55,7 @@ export default function PlatformCredentialsModal({ platform, isOpen, setIsOpen, 
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded bg-blue-600 text-white"
+              className="!px-4 py-2 rounded !bg-blue-600 !text-white"
             >
               Save
 

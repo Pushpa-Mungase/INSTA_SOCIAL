@@ -234,33 +234,6 @@ export default function HomePage() {
         </button>
       </div>
 
-      {/* Platform Filter Buttons */}
-      {/* <div className="flex gap-3 px-4 py-2 overflow-x-auto">
-        {platformsList.map((platform) => (
-          <button
-            key={platform}
-            className={`capitalize px-3 py-1 rounded border transition ${
-              platformFilter === platform
-                ? "bg-blue-600 text-white border-blue-600"
-                : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
-            }`}
-            onClick={() => togglePlatformFilter(platform)}
-            title={`Filter by ${platform}`}
-          >
-            {platform}
-          </button>
-        ))}
-        {platformFilter && (
-          <button
-            className="px-3 py-1 rounded border bg-red-500 text-white ml-4"
-            onClick={() => setPlatformFilter(null)}
-            title="Clear Filter"
-          >
-            Clear Filter
-          </button>
-        )}
-      </div> */}
-
       <div className="flex gap-4 px-4 py-3 border-b">
         {platformsList.map((platform) => (
           <button

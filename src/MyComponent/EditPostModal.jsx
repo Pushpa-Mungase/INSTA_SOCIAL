@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import axiosInstance from "../utils/axiosInstance";
 import {
@@ -8,8 +9,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-
-const platformsList = ["facebook", "twitter", "linkedin", "instagram"];
 
 export default function EditPostModal({
   postId,
@@ -28,6 +27,22 @@ export default function EditPostModal({
     newVideoFiles: [],
   });
 
+  const [userPlatforms, setUserPlatforms] = useState([]);
+
+  // useEffect(() => {
+  //   // Fetch user's platforms
+  //   const fetchPlatforms = async () => {
+  //     try {
+  //       const response = await axiosInstance.get("/platforms");
+  //       setUserPlatforms(response.data.platforms || []);
+  //     } catch (error) {
+  //       console.error("Error fetching platforms:", error);
+  //     }
+  //   };
+
+  //   fetchPlatforms();
+  // }, []);
+
   useEffect(() => {
     if (post) {
       setUpdatedPost({
@@ -44,11 +59,11 @@ export default function EditPostModal({
     }
   }, [post]);
 
-  const handlePlatformToggle = (platform) => {
+  const handlePlatformToggle = (platformId) => {
     setUpdatedPost((prev) => {
-      const platforms = prev.platforms.includes(platform)
-        ? prev.platforms.filter((p) => p !== platform)
-        : [...prev.platforms, platform];
+      const platforms = prev.platforms.includes(platformId)
+        ? prev.platforms.filter((p) => p !== platformId)
+        : [...prev.platforms, platformId];
       return { ...prev, platforms };
     });
   };
@@ -64,7 +79,9 @@ export default function EditPostModal({
       formData.append("title", updatedPost.title);
       formData.append("content", updatedPost.content);
       formData.append("scheduledFor", updatedPost.scheduledFor);
-      updatedPost.platforms.forEach((p) => formData.append("platforms[]", p));
+      updatedPost.platforms.forEach((p) =>
+        formData.append("selectedPlatformIds[]", p)
+      );
 
       updatedPost.newImageFiles.forEach((file) =>
         formData.append("media", file)
@@ -79,11 +96,13 @@ export default function EditPostModal({
         { headers: { "Content-Type": "multipart/form-data" } }
       );
 
-      if (response.data?.message === "Post updated successfully") {
-        alert("Post updated successfully!");
-        onUpdated();
-        setIsOpen(false);
-      }
+     if (
+  response.data?.success==true  
+) {
+  alert("Post updated successfully!");
+  onUpdated();
+  setIsOpen(false);
+}
     } catch (error) {
       console.error(
         "Error updating post:",
@@ -124,24 +143,7 @@ export default function EditPostModal({
             rows={4}
           />
 
-          <div>
-            <p className="font-medium mb-2">Select Platforms:</p>
-            <div className="flex gap-2 flex-wrap">
-              {platformsList.map((platform) => (
-                <button
-                  key={platform}
-                  onClick={() => handlePlatformToggle(platform)}
-                  className={`px-4 py-2 rounded-full border transition ${
-                    updatedPost.platforms.includes(platform)
-                      ? "bg-blue-600 text-white border-blue-600"
-                      : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
-                  }`}
-                >
-                  {platform.charAt(0).toUpperCase() + platform.slice(1)}
-                </button>
-              ))}
-            </div>
-          </div>
+         
 
           <input
             type="datetime-local"
@@ -207,7 +209,7 @@ export default function EditPostModal({
 
         <DialogFooter>
           <button
-            className="bg-blue-600 text-white px-4 py-2 rounded mt-4"
+            className="!bg-blue-600 text-white px-4 py-2 rounded mt-4"
             onClick={handleUpdatePost}
           >
             Save Changes
@@ -217,10 +219,6 @@ export default function EditPostModal({
     </Dialog>
   );
 }
-
-
-
-
 
 
 

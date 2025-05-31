@@ -21,7 +21,7 @@ export default function Navbar() {
   return (
     <>
       <nav className="flex items-center justify-between bg-gray-800 text-white p-4 shadow">
-        <div className="text-xl font-bold">MyLogo</div>
+        <div className="text-xl font-bold">INSTA-SOCIAL</div>
         <div className="flex gap-4 items-center">
           <Link to="/" className="hover:text-gray-300">Home</Link>
          
