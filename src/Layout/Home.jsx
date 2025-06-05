@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
-import Navbar from "../MyComponent/Navbar"; // adjust path based on structure
-import Footer from "../MyComponent/Footer";
+import Navbar from "./Navbar"; // adjust path based on structure
+import Footer from "./Footer";
 
 export default function Home({ children }) {
   return (

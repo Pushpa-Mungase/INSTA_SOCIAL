@@ -6,7 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import axiosInstance from "../utils/axiosInstance";
+import axiosInstance from "../../utils/axiosInstance";
 import { toast } from "react-hot-toast";
 
 export default function DeletePostModal({ postId,isOpen, setIsOpen, onDeleted,
@@ -41,6 +41,7 @@ export default function DeletePostModal({ postId,isOpen, setIsOpen, onDeleted,
         <DialogHeader>
           <DialogTitle>Confirm Delete</DialogTitle>
           <DialogDescription>
+           If your post is posted. The post will be deleted only here not on your social media platforms.
             Are you sure you want to delete this post? This action cannot be
             undone.
           </DialogDescription>
