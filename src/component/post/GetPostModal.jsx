@@ -57,7 +57,16 @@ export default function GetPostModal({ onEdit, postsData }) {
         };
       });
 
-      setPosts(processedPosts);
+      // Sort posts by creation date (latest first)
+      const sortedPosts = processedPosts.sort((a, b) => {
+        // Try to use createdAt field first, then fall back to _id (if using MongoDB ObjectId)
+        const dateA = a.createdAt ? new Date(a.createdAt) : new Date(parseInt(a._id.substring(0, 8), 16) * 1000);
+        const dateB = b.createdAt ? new Date(b.createdAt) : new Date(parseInt(b._id.substring(0, 8), 16) * 1000);
+        
+        return dateB - dateA; // Descending order (latest first)
+      });
+
+      setPosts(sortedPosts);
     } catch (error) {
       console.error("Error fetching posts:", error);
     }
