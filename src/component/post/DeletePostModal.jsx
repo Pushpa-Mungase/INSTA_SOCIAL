@@ -6,7 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import axiosInstance from "../utils/axiosInstance";
+import axiosInstance from "../../utils/axiosInstance";
 import { toast } from "react-hot-toast";
 
 export default function DeletePostModal({ postId,isOpen, setIsOpen, onDeleted,
@@ -17,8 +17,7 @@ export default function DeletePostModal({ postId,isOpen, setIsOpen, onDeleted,
       const deleteUrl = (postId) => `/post/delete-scheduled-post/${postId}`;
       const response = await axiosInstance.delete(deleteUrl(postId));
       if (response.data?.message?.includes("deleted")) {
-        toast.success("✅ Post deleted successfully!");
-        alert("post deleted successfully!");
+        toast.success("✅ Post deleted successfully!");       
         onDeleted();
         setIsOpen(false);
       } else {
