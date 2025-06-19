@@ -6,6 +6,7 @@ import {
   UserPlus,
   Sparkles,
   Settings,
+  LogOut,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -26,7 +27,8 @@ export default function Navbar() {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const { isAuthenticated } = useAuth();
-
+  const { user } = useAuth();
+ 
   // const openModal = (type) => {
   //   setAuthType(type);
   //   setIsAuthModalOpen(true);
@@ -38,7 +40,7 @@ export default function Navbar() {
 
   return (
     <>
-     {/* Navbar */}
+      {/* Navbar */}
       <nav className="fixed top-0 left-0 right-0 z-40 backdrop-blur-xl bg-white border-b border-white/10 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-2">
           <div className="flex items-center justify-between">
@@ -67,18 +69,51 @@ export default function Navbar() {
                   <DropdownMenu>
                     <DropdownMenuTrigger className="!focus:outline-none !focus:ring-0 !p-0">
                       <Avatar>
-                        <AvatarImage src="https://github.com/shadcn.png" />
-                        <AvatarFallback>CN</AvatarFallback>
+                        <AvatarImage src={user?.avatar || "https://github.com/shadcn.png"} />
+                        <AvatarFallback>
+                          {user?.name
+                            ? user.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")
+                              .toUpperCase()
+                            : "CN"}
+                        </AvatarFallback>
                       </Avatar>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-40">
+                    <DropdownMenuContent align="end" className="w-52">
+                      {/* User Info */}
+                      <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100">
+                        <Avatar className="w-10 h-10">
+                          <AvatarImage src={user?.avatar || "https://github.com/shadcn.png"} />
+                          <AvatarFallback>
+                            {user?.name
+                              ? user.name
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")
+                                .toUpperCase()
+                              : "CN"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="font-semibold text-gray-900 text-sm">
+                            {user?.name || "Pushpa"}
+                          </div>
+                          <div className="text-xs text-gray-500 truncate max-w-[140px]">
+                            {user?.email || "pushpa23@gmail.com"}
+                          </div>
+                        </div>
+                      </div>
+                      {/* Logout */}
                       <DropdownMenuItem
                         onClick={() => {
                           logout();
                           navigate("/login", { state: { view: "login" } });
                         }}
-                        className="text-red-500 hover:bg-red-50 cursor-pointer"
+                        className="text-red-500 hover:!text-red-600  !bg-[#ffe2e2] hover:!bg-red-300 cursor-pointer items-center justify-center w-[90%] mx-auto"
                       >
+                        <LogOut className="w-4 h-4 ml-2 text-red-500" />
                         Logout
                       </DropdownMenuItem>
                     </DropdownMenuContent>

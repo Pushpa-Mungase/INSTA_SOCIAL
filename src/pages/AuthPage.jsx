@@ -175,7 +175,7 @@ export default function AuthPage() {
                 {/* <span className="text-gray-600">Remember me</span> */}
               </label>
               {authView === "login" && (
-                <button type="button" className="text-indigo-600 hover:underline" onClick={() => setShowResetModal(true)}>Forgot password?</button>
+                <button type="button" className="text-indigo-600 hover:underline hover:!focus:ring-0 !border-0 !p-0 !bg-white " onClick={() => setShowResetModal(true)}>Forgot password?</button>
               )}
             </div>
             <button

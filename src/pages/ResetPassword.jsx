@@ -56,19 +56,16 @@ export function ResetPasswordForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className=" flex  justify-center p-4">
       <Card className="w-full max-w-md shadow-lg rounded-2xl overflow-hidden border-0 p-0">
-        <div className="bg-gradient-to-r from-indigo-600 to-blue-600 p-6 text-white">
+        <div className="bg-[#8e51ff] px-6 py-2 text-white">
           <CardHeader className="space-y-1 p-0">
             <CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
-            <CardDescription className="text-blue-100">
-              Enter your new password. The verification token is taken automatically from your reset link.
-            </CardDescription>
           </CardHeader>
         </div>
         <form onSubmit={handleResetPassword}>
-          <CardContent className="p-4 space-y-4">
-            <div className="space-y-2">
+          <CardContent className="px-4 pb-4 space-y-2">
+            <div className="space-y-3 py-0">
               <Label htmlFor="new-password">New Password</Label>
               <div className="relative">
                 <Input
@@ -93,7 +90,7 @@ export function ResetPasswordForm() {
                 Must be at least 8 characters with a number and special character
               </p>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-3">
               <Label htmlFor="confirm-password">Confirm New Password</Label>
               <div className="relative">
                 <Input
@@ -117,7 +114,7 @@ export function ResetPasswordForm() {
             </div>
             {/* Token input removed */}
           </CardContent>
-          <CardFooter className="flex flex-col p-6 pt-0 space-y-3 m-0">
+          <CardFooter className="flex flex-col p-6 pt-2 space-y-3 m-0">
             <Button
               className="w-full !bg-[#8e51ff] hover:bg-indigo-700 transition-colors"
               type="submit"

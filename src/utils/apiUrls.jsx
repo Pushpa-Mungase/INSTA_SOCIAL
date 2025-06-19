@@ -10,6 +10,7 @@ const apiUrls = {
   loginUser: `/auth/login`,
   requestPasswordReset: "/auth/request-reset",
   resetPassword: "/auth/reset-password",
+  getUserById: () => `/user/byId`,
 };
 
 export default apiUrls;

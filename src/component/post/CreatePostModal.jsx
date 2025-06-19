@@ -122,13 +122,6 @@ export default function CreatePostModal({ isOpen, setIsOpen, onPostCreated, crea
       };
     });
   };
-
-
-
-
-  // const handleRemoveMetaPost = (idx) => {
-  //   setMetaPosts((prev) => prev.filter((_, i) => i !== idx));
-  // };
   const handleMetaPostChange = (idx, field, value) => {
     setMetaPosts((prev) =>
       prev.map((post, i) =>

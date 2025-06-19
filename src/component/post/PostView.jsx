@@ -273,6 +273,10 @@ export default function TimelinePostsUI({
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-md bg-purple-500"></div>
                   {date}
+                  <span className="bg-purple-200 text-purple-800 px-2 py-0.5 rounded-full flex items-center gap-1 pb-0.5">
+                    {/* <ListTodo size={16} className="inline" /> */}
+                    {posts.length}
+                  </span> 
                 </div>
                 <div className="flex flex-wrap gap-2 sm:justify-end">
                   <span className="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full flex items-center gap-1">
@@ -287,144 +291,146 @@ export default function TimelinePostsUI({
                     <AlertCircle size={16} className="inline" />
                     {posts.filter((p) => p.status === "failed").length}
                   </span>
-                  <span className="bg-purple-200 text-purple-800 px-2 py-0.5 rounded-full flex items-center gap-1 pb-0.5">
+                  {/* <span className="bg-purple-200 text-purple-800 px-2 py-0.5 rounded-full flex items-center gap-1 pb-0.5">
                     <ListTodo size={16} className="inline" />
                     {posts.length}
-                  </span>
+                  </span> */}
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 px-0.5 ">
-                {posts.map((post) => (
-                  <div
-                    key={post._id}
-                    className="bg-background border rounded-md shadow-sm hover:shadow-md transition overflow-hidden pb-2"
-                  >
-                    <div className="relative max-h-72">
-                      {post.files?.length > 0 ? (
-                        Array.isArray(post.selectedPlatformName) &&
-                          post.selectedPlatformName.length === 1 &&
-                          post.selectedPlatformName.includes("twitter") ? (
-                          <div className="flex justify-center items-center w-full h-32 bg-[#E8F5FD] rounded-b-md cursor-pointer"
-                            onClick={() => openPostDialog(post)}>
-                            <FaTwitter className="text-[#1DA1F2]" size={40} />
-                          </div>
-                        ) : post.files.length > 1 ? (
-                          <div className="grid grid-cols-2 gap-0.5 h-32">
-                            {post.files.slice(0, 2).map((file, idx) =>
-                              file.type === "image" ? (
-                                <img
-                                  key={idx}
-                                  src={file.url}
-                                  alt={`media-${idx}`}
-                                  className="object-cover w-full h-32 rounded-md cursor-pointer hover:border-1 hover:border-[#8e51ff]"
-                                  onClick={() => openPostDialog(post, idx)}
-                                />
-                              ) : (
-                                <video
-                                  key={idx}
-                                  src={file.url}
-                                  muted
-                                  className="object-cover w-full h-32 rounded-md cursor-pointer hover:border-1 hover:border-[#8e51ff]"
-                                  onClick={() => openPostDialog(post, idx)}
-                                />
-                              )
-                            )}
-                          </div>
-                        ) : post.files[0].type === "image" ? (
-                          <img
-                            src={post.files[0].url}
-                            alt=""
-                            className="object-cover w-full h-32 rounded-md cursor-pointer hover:border-1 hover:border-[#8e51ff]"
-                            onClick={() => openPostDialog(post, 0)}
-                          />
-                        ) : (
-                          <video
-                            src={post.files[0].url}
-                            muted
-                            className="object-cover w-full h-32 rounded-md cursor-pointer hover:border-1 hover:border-[#8e51ff]"
-                            onClick={() => openPostDialog(post, 0)}
-                          />
-                        )
-                      ) : (
-                        Array.isArray(post.selectedPlatformName) &&
-                        post.selectedPlatformName.length === 1 &&
-                        post.selectedPlatformName.includes("twitter") && (
-                          <div className="flex justify-center items-center w-full h-32 bg-[#E8F5FD] rounded-b-md cursor-pointer"
-                            onClick={() => openPostDialog(post)}>
-                            <FaTwitter className="text-[#1DA1F2]" size={40} />
-                          </div>
-                        )
-                      )}
-
-                      <div className="absolute bottom-1 left-1 bg-[#8e51ff] text-white text-xs font-semibold px-1.5 py-0.5 rounded-full shadow">
-                        {new Date(post.scheduledFor).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: true,
-                        })}
-                      </div>
-
-                      <div
-                        className={`absolute top-1 right-1 text-xs font-semibold px-1.5 py-0.5 rounded-full shadow ${post.status === "posted"
-                          ? "bg-green-100 text-green-800"
-                          : post.status === "pending"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : post.status === "failed"
-                              ? "bg-red-100 text-red-800"
-                              : "bg-gray-100 text-gray-700"
-                          }`}
-                      >
-                        {post.status === "pending"
-                          ? "Scheduled"
-                          : post.status?.charAt(0).toUpperCase() + post.status?.slice(1)}
-                      </div>
-                    </div>
-
-                    <div className="flex justify-between items-start px-2 py-3">
-                      <div className="flex gap-2 items-center">
-                        {renderPlatformIcons(post)}
-                      </div>
-                      {(post.status === "pending" || post.status === "failed") && (
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <BsThreeDotsVertical size={16} className="cursor-pointer" />
-                          </PopoverTrigger>
-                          <PopoverContent className="w-10 p-1">
-                            <div className="space-y-1">
-                              <button
-                                onClick={() => {
-                                  setSelectedPost(post);
-                                  setEditModalOpen(true);
-                                }}
-                                className="w-full text-center !px-1 !py-1 !text-[10px] hover:bg-gray-100 rounded !cursor-pointer"
-                              >
-                                Edit
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setSelectedPost(post);
-                                  setDeleteModalOpen(true);
-                                }}
-                                className="w-full text-center !px-0.5 !py-1 !text-[8px] hover:bg-red-50 text-red-600 rounded"
-                              >
-                                Delete
-                              </button>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 px-0.5  ">
+                {posts.slice() 
+                  .sort((a, b) => new Date(b.scheduledFor) - new Date(a.scheduledFor))
+                  .map((post) => (
+                    <div
+                      key={post._id}
+                      className="bg-background border rounded-md shadow-sm hover:shadow-md transition overflow-hidden pb-2"
+                    >
+                      <div className="relative max-h-72">
+                        {post.files?.length > 0 ? (
+                          Array.isArray(post.selectedPlatformName) &&
+                            post.selectedPlatformName.length === 1 &&
+                            post.selectedPlatformName.includes("twitter") ? (
+                            <div className="flex justify-center items-center w-full h-32 bg-[#E8F5FD] rounded-b-md cursor-pointer"
+                              onClick={() => openPostDialog(post)}>
+                              <FaTwitter className="text-[#1DA1F2]" size={40} />
                             </div>
-                          </PopoverContent>
-                        </Popover>
+                          ) : post.files.length > 1 ? (
+                            <div className="grid grid-cols-2 gap-0.5 h-32">
+                              {post.files.slice(0, 2).map((file, idx) =>
+                                file.type === "image" ? (
+                                  <img
+                                    key={idx}
+                                    src={file.url}
+                                    alt={`media-${idx}`}
+                                    className="object-cover w-full h-32 rounded-md cursor-pointer hover:border-1 hover:border-[#8e51ff]"
+                                    onClick={() => openPostDialog(post, idx)}
+                                  />
+                                ) : (
+                                  <video
+                                    key={idx}
+                                    src={file.url}
+                                    muted
+                                    className="object-cover w-full h-32 rounded-md cursor-pointer hover:border-1 hover:border-[#8e51ff]"
+                                    onClick={() => openPostDialog(post, idx)}
+                                  />
+                                )
+                              )}
+                            </div>
+                          ) : post.files[0].type === "image" ? (
+                            <img
+                              src={post.files[0].url}
+                              alt=""
+                              className="object-cover w-full h-32 rounded-md cursor-pointer hover:border-1 hover:border-[#8e51ff]"
+                              onClick={() => openPostDialog(post, 0)}
+                            />
+                          ) : (
+                            <video
+                              src={post.files[0].url}
+                              muted
+                              className="object-cover w-full h-32 rounded-md cursor-pointer hover:border-1 hover:border-[#8e51ff]"
+                              onClick={() => openPostDialog(post, 0)}
+                            />
+                          )
+                        ) : (
+                          Array.isArray(post.selectedPlatformName) &&
+                          post.selectedPlatformName.length === 1 &&
+                          post.selectedPlatformName.includes("twitter") && (
+                            <div className="flex justify-center items-center w-full h-32 bg-[#E8F5FD] rounded-b-md cursor-pointer"
+                              onClick={() => openPostDialog(post)}>
+                              <FaTwitter className="text-[#1DA1F2]" size={40} />
+                            </div>
+                          )
+                        )}
+
+                        <div className="absolute bottom-1 left-1 bg-[#8e51ff] text-white text-xs font-semibold px-1.5 py-0.5 rounded-full shadow">
+                          {new Date(post.scheduledFor).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          })}
+                        </div>
+
+                        <div
+                          className={`absolute top-1 right-1 text-xs font-semibold px-1.5 py-0.5 rounded-full shadow ${post.status === "posted"
+                            ? "bg-green-100 text-green-800"
+                            : post.status === "pending"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : post.status === "failed"
+                                ? "bg-red-100 text-red-800"
+                                : "bg-gray-100 text-gray-700"
+                            }`}
+                        >
+                          {post.status === "pending"
+                            ? "Scheduled"
+                            : post.status?.charAt(0).toUpperCase() + post.status?.slice(1)}
+                        </div>
+                      </div>
+
+                      <div className="flex justify-between items-start px-2 py-3">
+                        <div className="flex gap-2 items-center">
+                          {renderPlatformIcons(post)}
+                        </div>
+                        {(post.status === "pending" || post.status === "failed") && (
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <BsThreeDotsVertical size={16} className="cursor-pointer" />
+                            </PopoverTrigger>
+                            <PopoverContent className="w-10 p-1">
+                              <div className="space-y-1">
+                                <button
+                                  onClick={() => {
+                                    setSelectedPost(post);
+                                    setEditModalOpen(true);
+                                  }}
+                                  className="w-full text-center !px-1 !py-1 !text-[10px] hover:bg-gray-100 rounded !cursor-pointer"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setSelectedPost(post);
+                                    setDeleteModalOpen(true);
+                                  }}
+                                  className="w-full text-center !px-0.5 !py-1 !text-[8px] hover:bg-red-50 text-red-600 rounded"
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            </PopoverContent>
+                          </Popover>
+                        )}
+                      </div>
+
+                      {(post.content || post.title) && (
+                        <div className="px-3  text-xs italic text-gray-800  line-clamp-2 text-ellipsis  overflow-hidden ">
+                          {Array.isArray(post.selectedPlatformName) &&
+                            post.selectedPlatformName.includes("youtube")
+                            ? post.title
+                            : post.content}
+                        </div>
                       )}
                     </div>
-
-                    {(post.content || post.title) && (
-                      <div className="px-3  text-xs italic text-gray-800  line-clamp-2 text-ellipsis  overflow-hidden ">
-                        {Array.isArray(post.selectedPlatformName) &&
-                          post.selectedPlatformName.includes("youtube")
-                          ? post.title
-                          : post.content}
-                      </div>
-                    )}
-                  </div>
-                ))}
+                  ))}
               </div>
             </div>
           ))

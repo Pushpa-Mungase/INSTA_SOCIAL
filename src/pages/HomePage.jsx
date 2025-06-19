@@ -71,11 +71,10 @@ export default function HomePage() {
         // Use axiosInstance instead of axios to ensure proper base URL and headers
         const res = await axiosInstance.get("/platform/get-user-platforms");
         console.log("platformStatusList:", res.data.platforms);
-
         setPlatformStatusList(res.data.platforms || []);
       } catch (error) {
         console.error("Error fetching platform status", error);
-        toast.error("Failed to fetch platform status");
+       toast.error("Failed to fetch platform status", { toastId: "fetch-platform-status-error" });
       } finally {
         setLoading(false);
       }
